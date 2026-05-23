@@ -4,9 +4,6 @@ from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
-
-load_dotenv()
-
 from fastapi import FastAPI, HTTPException
 from langchain_core.messages import HumanMessage
 from langgraph.checkpoint.redis.aio import AsyncRedisSaver
@@ -15,13 +12,14 @@ from pydantic import BaseModel
 from pottery_assistant.agent import create_agent
 from pottery_assistant.observability import log_requests, setup_logging
 
+load_dotenv()
 setup_logging()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
     async with AsyncRedisSaver.from_conn_string(REDIS_URL) as checkpointer:
         await checkpointer.asetup()
         app.state.agent = create_agent(checkpointer)
@@ -48,7 +46,7 @@ class ChatResponse(BaseModel):
     session_id: str
 
 
-@app.post("/chat", response_model=ChatResponse)
+@app.post("/chat")
 async def chat(request: ChatRequest) -> ChatResponse:
     session_id = request.session_id or str(uuid.uuid4())
     config = {"configurable": {"thread_id": session_id}}

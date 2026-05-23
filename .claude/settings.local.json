@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /home/revem/www/estacio/PotteryAssistant add Dockerfile docker-compose.yml .dockerignore README.md src/pottery_assistant/my_module.py)",
+      "Bash(git -C /home/revem/www/estacio/PotteryAssistant status)",
+      "Bash(git *)",
+      "Bash(uv run *)",
+      "Bash(uv sync *)",
+      "Bash(uv add *)",
+      "Bash(gh run *)"
+    ]
+  }
+}

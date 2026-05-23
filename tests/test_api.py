@@ -3,8 +3,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from fastapi.testclient import TestClient
 
+from pottery_assistant.api import app
 
-@pytest.fixture()
+
+@pytest.fixture
 def client():
     mock_agent = MagicMock()
     mock_agent.ainvoke = AsyncMock(return_value={
@@ -17,11 +19,10 @@ def client():
     mock_ctx.__aexit__ = AsyncMock(return_value=None)
 
     with (
-        patch("pottery_assistant.api.AsyncRedisSaver") as MockRedis,
+        patch("pottery_assistant.api.AsyncRedisSaver") as mock_redis,
         patch("pottery_assistant.api.create_agent", return_value=mock_agent),
     ):
-        MockRedis.from_conn_string.return_value = mock_ctx
-        from pottery_assistant.api import app
+        mock_redis.from_conn_string.return_value = mock_ctx
         with TestClient(app) as c:
             yield c
 
@@ -54,6 +55,8 @@ def test_chat_preserves_provided_session_id(client: TestClient) -> None:
 
 
 def test_chat_returns_500_on_agent_error(client: TestClient) -> None:
-    client.app.state.agent.ainvoke = AsyncMock(side_effect=RuntimeError("LLM indisponível"))
+    client.app.state.agent.ainvoke = AsyncMock(
+        side_effect=RuntimeError("LLM indisponível")
+    )
     response = client.post("/chat", json={"message": "Erro?"})
     assert response.status_code == 500
