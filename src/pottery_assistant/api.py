@@ -13,6 +13,9 @@ from langgraph.checkpoint.redis.aio import AsyncRedisSaver
 from pydantic import BaseModel
 
 from pottery_assistant.agent import create_agent
+from pottery_assistant.observability import log_requests, setup_logging
+
+setup_logging()
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
@@ -31,6 +34,8 @@ app = FastAPI(
     version="0.0.1",
     lifespan=lifespan,
 )
+
+app.middleware("http")(log_requests)
 
 
 class ChatRequest(BaseModel):
