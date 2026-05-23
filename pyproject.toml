@@ -18,7 +18,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff", "pyright", "pytest", "pytest-xdist"]
+dev = [
+    "ruff",
+    "pyright",
+    "pytest",
+    "pytest-xdist",
+    "pytest-cov>=7.1.0",
+]
 
 [project.scripts]
 pottery_assistant = "pottery_assistant.my_module:run_from_script"
